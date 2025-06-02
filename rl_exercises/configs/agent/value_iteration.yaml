@@ -1,0 +1,3 @@
+# @package _global_
+agent: value_iteration
+agent_class: ValueIteration

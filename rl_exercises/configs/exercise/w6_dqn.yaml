@@ -1,0 +1,10 @@
+# @package _global_
+defaults:
+  - ../agent: dqn
+
+env_name: LunarLander-v2
+max_episode_length: 1000
+
+buffer_cls: ReplayBuffer
+buffer_kwargs:
+  capacity: 10

@@ -1,0 +1,3 @@
+# @package _global_
+agent: policy_iteration
+agent_class: PolicyIteration

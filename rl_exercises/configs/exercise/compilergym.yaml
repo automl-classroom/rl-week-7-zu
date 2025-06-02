@@ -1,0 +1,8 @@
+# @package _global_
+
+env_name: compiler
+env_kwargs: {}
+
+model_fn: agent_compilergym.zip
+
+agent_kwargs: {}

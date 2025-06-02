@@ -1,0 +1,23 @@
+name: rlcc
+channels:
+  - pytorch
+  - defaults
+  - conda-forge
+dependencies:
+  - python=3.8
+  - black
+  - pylint
+  - rope
+  - pytorch
+  - torchvision
+  - torchaudio
+  - cudatoolkit=11.3
+  - ca-certificates
+  - certifi
+  - openssl
+  - pip
+  - pip:
+    - autopep8
+    - compiler_gym
+    - gym>=0.18.0,<=0.21
+    - tqdm

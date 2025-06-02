@@ -1,0 +1,11 @@
+# @package _global_
+agent: vfa_q_learning
+agent_class: VFAQAgent
+agent_kwargs:
+  gamma: 1.0
+  batch_size: 64
+  learning_rate: 0.1
+
+policy_class: EpsilonGreedyPolicy
+policy_kwargs:
+  epsilon: 0.1

@@ -1,0 +1,11 @@
+# @package _global_
+agent: tabular_q_learning
+agent_class: TabularQAgent
+agent_kwargs:
+  gamma: 1.0
+  learning_rate: 0.2
+  num_bins: 20
+
+policy_class: TabularEpsilonGreedyPolicy
+policy_kwargs:
+  epsilon: 0.1

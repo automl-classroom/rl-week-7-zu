@@ -1,0 +1,3 @@
+# @package _global_
+buffer_cls: SimpleBuffer
+buffer_kwargs: {}

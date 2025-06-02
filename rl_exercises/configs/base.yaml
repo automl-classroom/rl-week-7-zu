@@ -1,0 +1,11 @@
+defaults:
+  - agent: sb3
+  - buffer
+  
+training_steps: 0
+env_name: Pendulum-v1
+env_kwargs: {}
+agent_kwargs: {}
+eval_every_n_steps: 1000
+n_eval_episodes: 1
+outpath: "."
