@@ -1,0 +1,10 @@
+Exploration Method Comparison: DQN vs RND-DQN
+
+I conducted a comparison between vanilla DQN and DQN enhanced with Random Network Distillation (RND) on a common environment. Both agents were trained with the same hyperparameters and across two random seeds.
+
+The plotted IQM (Interquartile Mean) curves show that both agents learn slowly in the early stages. However, the RND-DQN agent begins to outperform the baseline DQN after approximately 250 environment steps. This suggests that the intrinsic bonus provided by the RND mechanism helps the agent explore more effectively, especially in sparse or deceptive reward settings.
+
+The improvement of RND-DQN is not drastic but consistent, with slightly higher IQM scores and earlier learning onset. The shaded areas (confidence intervals) suggest some variance between runs, but the trend remains clear.
+
+Conclusion:
+RND provides a meaningful intrinsic signal that accelerates learning in environments where ε-greedy exploration may fall short. It enhances sample efficiency and is a good fit for DQN when exploring novel states is crucial.

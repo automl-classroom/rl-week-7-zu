@@ -8,6 +8,9 @@ import gymnasium as gym
 import hydra
 import numpy as np
 import pandas as pd
+import torch
+import torch.nn as nn
+import torch.optim as optim
 from omegaconf import DictConfig
 from rl_exercises.week_4.dqn import DQNAgent, set_seed
 
@@ -80,7 +83,27 @@ class RNDDQNAgent(DQNAgent):
         )
         self.seed = seed
         # TODO: initialize the RND networks
-        ...
+        obs_dim = env.observation_space.shape[0]
+        self.rnd_target = nn.Sequential(
+            nn.Linear(obs_dim, rnd_hidden_size),
+            nn.ReLU(),
+            nn.Linear(rnd_hidden_size, rnd_hidden_size),
+            nn.ReLU(),
+        )
+        self.rnd_predictor = nn.Sequential(
+            nn.Linear(obs_dim, rnd_hidden_size),
+            nn.ReLU(),
+            nn.Linear(rnd_hidden_size, rnd_hidden_size),
+            nn.ReLU(),
+        )
+        # target 不训练
+        for p in self.rnd_target.parameters():
+            p.requires_grad = False
+
+        self.rnd_optimizer = optim.Adam(self.rnd_predictor.parameters(), lr=rnd_lr)
+        self.rnd_criterion = nn.MSELoss()
+        self.rnd_update_freq = rnd_update_freq
+        self.rnd_reward_weight = rnd_reward_weight
 
     def update_rnd(
         self, training_batch: List[Tuple[Any, Any, float, Any, bool, Dict]]
@@ -96,7 +119,20 @@ class RNDDQNAgent(DQNAgent):
         # TODO: get states and next_states from the batch
         # TODO: compute the MSE
         # TODO: update the RND network
-        ...
+        states, _, _, _, _, _ = zip(*training_batch)
+        s = torch.tensor(np.array(states), dtype=torch.float32)
+
+        with torch.no_grad():
+            target_feat = self.rnd_target(s)
+        pred_feat = self.rnd_predictor(s)
+
+        loss = self.rnd_criterion(pred_feat, target_feat)
+
+        self.rnd_optimizer.zero_grad()
+        loss.backward()
+        self.rnd_optimizer.step()
+
+        return loss.item()
 
     def get_rnd_bonus(self, state: np.ndarray) -> float:
         """Compute the RND bonus for a given state.
@@ -113,7 +149,12 @@ class RNDDQNAgent(DQNAgent):
         """
         # TODO: predict embeddings
         # TODO: get error
-        ...
+        s = torch.tensor(state, dtype=torch.float32).unsqueeze(0)
+        with torch.no_grad():
+            target_feat = self.rnd_target(s)
+        pred_feat = self.rnd_predictor(s)
+        bonus = self.rnd_criterion(pred_feat, target_feat).item()
+        return bonus
 
     def train(self, num_frames: int, eval_interval: int = 1000) -> None:
         """
@@ -137,7 +178,8 @@ class RNDDQNAgent(DQNAgent):
             next_state, reward, done, truncated, _ = self.env.step(action)
 
             # TODO: apply RND bonus
-            reward += ...
+            bonus = self.get_rnd_bonus(next_state)
+            reward += self.rnd_reward_weight * bonus
 
             # store and step
             self.buffer.add(state, action, reward, next_state, done or truncated, {})
@@ -149,8 +191,8 @@ class RNDDQNAgent(DQNAgent):
                 batch = self.buffer.sample(self.batch_size)
                 _ = self.update_agent(batch)
 
-            if self.total_steps % self.rnd_update_freq == 0:
-                self.update_rnd(batch)
+                if self.total_steps % self.rnd_update_freq == 0:
+                    self.update_rnd(batch)
 
             if done or truncated:
                 state, _ = self.env.reset()
@@ -178,9 +220,26 @@ def main(cfg: DictConfig):
     env = gym.make(cfg.env.name)
     set_seed(env, cfg.seed)
 
+    agent_kwargs = dict(
+        buffer_capacity=cfg.agent.buffer_capacity,
+        batch_size=cfg.agent.batch_size,
+        lr=cfg.agent.learning_rate,
+        gamma=cfg.agent.gamma,
+        epsilon_start=cfg.agent.epsilon_start,
+        epsilon_final=cfg.agent.epsilon_final,
+        epsilon_decay=cfg.agent.epsilon_decay,
+        target_update_freq=cfg.agent.target_update_freq,
+        seed=cfg.seed,
+        rnd_hidden_size=128,
+        rnd_lr=1e-3,
+        rnd_update_freq=100,
+        rnd_n_layers=2,
+        rnd_reward_weight=0.1,
+    )
+
     # 3) TODO: instantiate & train the agent
-    agent = ...
-    agent.train(...)
+    agent = RNDDQNAgent(env, **agent_kwargs)
+    agent.train(cfg.train.num_frames, cfg.train.eval_interval)
 
 
 if __name__ == "__main__":

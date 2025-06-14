@@ -7,6 +7,7 @@ from typing import Any, Dict, List, Tuple
 import gymnasium as gym
 import hydra
 import numpy as np
+import pandas as pd
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -121,6 +122,7 @@ class DQNAgent(AbstractAgent):
         self.target_update_freq = target_update_freq
 
         self.total_steps = 0  # for ε decay and target sync
+        self.seed = seed
 
     def epsilon(self) -> float:
         """
@@ -291,6 +293,11 @@ class DQNAgent(AbstractAgent):
                     )
 
         print("Training complete.")
+
+        training_data = pd.DataFrame(
+            {"steps": list(range(len(recent_rewards))), "rewards": recent_rewards}
+        )
+        training_data.to_csv(f"training_data_seed_{self.seed}.csv", index=False)
 
 
 @hydra.main(config_path="../configs/agent/", config_name="dqn", version_base="1.1")
