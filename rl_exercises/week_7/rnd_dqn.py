@@ -4,7 +4,7 @@ Deep Q-Learning with RND implementation.
 
 from typing import Any, Dict, List, Tuple
 
-import gymnasium as gym
+import gym
 import hydra
 import numpy as np
 import pandas as pd
@@ -212,6 +212,13 @@ class RNDDQNAgent(DQNAgent):
         print("Training complete.")
         training_data = pd.DataFrame({"steps": steps, "rewards": episode_rewards})
         training_data.to_csv(f"training_data_seed_{self.seed}.csv", index=False)
+
+        snapshot_steps = [int(num_frames * 0.1), int(num_frames * 0.5), num_frames]
+
+        if frame in snapshot_steps:
+            torch.save(self.q.state_dict(), f"snapshot_q_{frame}.pt")
+            torch.save(self.rnd_predictor.state_dict(), f"snapshot_rnd_{frame}.pt")
+            print(f"[Snapshot] Saved at step {frame}")
 
 
 @hydra.main(config_path="../configs/agent/", config_name="dqn", version_base="1.1")

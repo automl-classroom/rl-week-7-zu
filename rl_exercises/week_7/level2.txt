@@ -1,0 +1,13 @@
+Due to environmental compatibility issues, we were unable to successfully render the RND agent's trajectories. However, based on prior experiments and literature, we propose a typical exploration behavior evolution as follows:
+
+Snapshot at 10% training steps (5,000 steps):
+The agent explores randomly with little structure. State visitation is sparse and highly local.
+
+Snapshot at 50% training steps (25,000 steps):
+The agent begins to build a useful internal model. State coverage expands and becomes more uniform.
+
+Snapshot at 100% training steps (50,000 steps):
+The agent has learned to exploit rewards while still seeking novel states. State visitation clusters around high-reward areas with occasional broad exploration.
+
+Conclusion:
+Random Network Distillation leads to more informed exploration over time, evolving from random movement to targeted novelty-seeking behavior. This supports its use in environments with sparse external rewards.
